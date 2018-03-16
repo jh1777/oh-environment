@@ -1,0 +1,61 @@
+#!/bin/bash
+#
+# This script will update your OpenHAB 2 installation.
+# The script assumes that the OpenHAB 2 is already installed.  Please shut it down and then run the script
+# If OpenHAB 2 is not already installed, create the directories ahead of time, and it will install OpenHAB 2
+#
+# This script will also update or install Smarthome Designer if desired.  Please make sure your work is saved
+#  before updating.
+#
+# v2.2 updated for OpenHAB version number changes
+# v2.1 some files in userdata/etc need to be removed to support updates to karaf
+# v2 Greatly simplified for the new OpenHAB2 Karaf online distribution
+# v1.1 Jim Howard
+#
+
+#The SNAPSHOT version to pull from cloudbees
+vHAB=2.2.0
+# The location for archive downloads
+DOWN="/home/pi/Downloads"
+# The location of the openHAB installation
+HAB="/home/pi/Desktop/OH2"
+# The location of SmartHome Designer
+SMD="/home/pi/Desktop/"
+# the list of files in userdata/etc to remove
+DELFILES="config.properties custom.properties distribution.info jre.properties keys.properties org.apache.karaf.features.cfg org.apache.karaf.features.repos.cfg org.apache.karaf.management.cfg org.ops4j.pax.web.cfg profile.cfg startup.properties system.properties branding.properties branding-ssh.properties version.properties"
+
+mkdir -p $DOWN || (echo "cannot make dir $DOWN";exit 1)
+mkdir -p $HAB  || (echo "cannot make dir $HAB ";exit 1)
+
+#
+# OpenHAB2 section
+#
+#cd $DOWN
+#wget -N https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target/openhab-$vHAB-SNAPSHOT.zip || (echo "failure downloading OH2";exit 1)
+
+cd $HAB
+rm -f $HAB/start*.sh
+rm -rf $HAB/runtime
+rm -r $HAB/userdata/cache/*
+rm -r $HAB/userdata/tmp/*
+rm -r $HAB/userdata/config/*
+for each in $DELFILES
+    do
+    rm -f $HAB/userdata/etc/$each
+    done
+
+unzip -n $DOWN/openhab-$vHAB.zip
+
+# clear up some windows clutter not needed with *nix systems
+#rm $HAB/*.bat
+
+#
+# Designer section
+#
+# uncomment the following 6 lines if Eclipse Designer is also to be updated.  Be sure to save your work #before updating.
+#mkdir -p $SMD || (echo "cannot make dir $DOWN";exit 1)
+#cd $DOWN
+#wget -N #http://download.eclipse.org/smarthome/nightly-snapshots/eclipsesmarthome-incubation-0.9.0-SNAPSHOT-designer#-linux64.zip
+#cd $SMD
+#rm -rf $SMD/p2/* $SMD/plugins 
+#unzip -o $DOWN/eclipsesmarthome-incubation-0.9.0-SNAPSHOT-designer-linux64.zip
